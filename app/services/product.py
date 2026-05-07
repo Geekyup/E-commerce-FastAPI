@@ -1,6 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from typing import Optional
 
 from app.models.cart import CartItem
 from app.models.product import Product
@@ -16,11 +18,18 @@ async def create_product(db: AsyncSession, payload: ProductCreate) -> Product:
     db.add(product)
     await db.commit()
     await db.refresh(product)
+    await db.execute(  
+        select(Product).where(Product.id == product.id).options(selectinload(Product.category))
+    )
     return product
 
 
 async def get_product(db: AsyncSession, product_id: int) -> Product | None:
-    result = await db.execute(select(Product).where(Product.id == product_id))
+    result = await db.execute(
+        select(Product)
+        .where(Product.id == product_id)
+        .options(selectinload(Product.category))
+    )
     return result.scalar_one_or_none()
 
 
@@ -28,22 +37,20 @@ async def list_products(
     db: AsyncSession,
     limit: int = 10,
     offset: int = 0,
+    category_id: Optional[int] = None, 
 ) -> list[Product]:
-    result = await db.execute(
-        select(Product).order_by(Product.id).limit(limit).offset(offset)
-    )
+    query = select(Product).options(selectinload(Product.category)).order_by(Product.id)
+    if category_id is not None:
+        query = query.where(Product.category_id == category_id)
+    result = await db.execute(query.limit(limit).offset(offset))
     return list(result.scalars().all())
 
 
 async def update_product(
-    db: AsyncSession,
-    product: Product,
-    payload: ProductUpdate,
+    db: AsyncSession, product: Product, payload: ProductUpdate
 ) -> Product:
-    update_data = payload.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
+    for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(product, field, value)
-
     await db.commit()
     await db.refresh(product)
     return product
@@ -52,13 +59,11 @@ async def update_product(
 async def delete_product(db: AsyncSession, product: Product) -> None:
     if product is None:
         return
-
     result = await db.execute(
         select(CartItem.id).where(CartItem.product_id == product.id).limit(1)
     )
     if result.scalar_one_or_none() is not None:
         raise ProductInActiveCartsError
-
     try:
         await db.delete(product)
         await db.commit()

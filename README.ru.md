@@ -1,3 +1,5 @@
+> 🇷🇺 (README.md)
+
 # 🛒 FastAPI E-Commerce Шаблон
 
 Чистый, готовый к production бэкенд-шаблон интернет-магазина на **FastAPI**, **SQLAlchemy** и **PostgreSQL**. Отличная отправная точка для любого e-commerce проекта.

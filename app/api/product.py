@@ -39,10 +39,10 @@ async def get_product_endpoint(
 async def list_products_endpoint(
     limit: int = Query(default=10, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    category_id: int | None = Query(default=None),  
     db: AsyncSession = Depends(get_db),
 ):
-    products = await list_products(db, limit=limit, offset=offset)
-    return products
+    return await list_products(db, limit=limit, offset=offset, category_id=category_id)
 
 
 @router.patch("/{product_id}", response_model=ProductOut)

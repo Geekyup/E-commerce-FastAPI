@@ -1,4 +1,5 @@
-> 🇷🇺 [Читать на русском](README.ru.md)
+> 🇷🇺 (README.ru.md)
+
 # 🛒 FastAPI E-Commerce Template
 
 A clean, production-ready e-commerce backend template built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**. Designed to be a solid starting point for any online store project.
