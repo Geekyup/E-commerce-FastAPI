@@ -22,3 +22,9 @@ class Product(Base):
 
     category: Mapped[Optional[Category]] = relationship('Category', back_populates="products")
     reviews: Mapped[list[Review]] = relationship('Review', back_populates="product", cascade="all, delete-orphan")
+
+    def __str__(self) -> str:
+        return f"{self.title} (${self.price})"
+    
+    def __repr__(self) -> str:
+        return f"<Product: {self.title}>"

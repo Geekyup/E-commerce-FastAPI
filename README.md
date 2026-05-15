@@ -1,4 +1,4 @@
-> 🇷🇺 (README.ru.md)
+> 🇷🇺 [README в России](#) | [README.ru.md](./README.ru.md)
 
 # 🛒 FastAPI E-Commerce Template
 

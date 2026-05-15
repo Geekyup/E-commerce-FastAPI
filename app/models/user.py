@@ -22,3 +22,6 @@ class User(Base):
     cart: Mapped[Cart | None] = relationship("Cart", back_populates="user", uselist=False)
     orders: Mapped[list[Order]] = relationship("Order", back_populates="user", cascade="all, delete-orphan")
     reviews: Mapped[list[Review]] = relationship("Review", back_populates="user", cascade="all, delete-orphan")
+
+    def __str__(self) -> str:
+        return f"{self.username} ({self.email})"

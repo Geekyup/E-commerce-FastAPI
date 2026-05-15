@@ -19,7 +19,6 @@ class Cart(Base):
 
 class CartItem(Base):
     __tablename__ = "cart_items"
-    __table_args__ = (UniqueConstraint("cart_id", "product_id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cart_id: Mapped[int] = mapped_column(Integer, ForeignKey("carts.id"), nullable=False)

@@ -1,4 +1,4 @@
-> 🇷🇺 (README.md)
+> �� [English](#) | [README.md](./README.md)
 
 # 🛒 FastAPI E-Commerce Шаблон
 
