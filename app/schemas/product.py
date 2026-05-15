@@ -24,9 +24,23 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
 
 
+class ReviewInProduct(BaseModel):
+    id: int
+    rating: float
+    title: str
+    comment: Optional[str] = None
+    created_at: str
+    updated_at: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ProductOut(ProductBase):
     id: int
     inventory: int
-    category: Optional[CategoryOut] = None  
+    cover_image: Optional[str] = None
+    images: Optional[list[str]] = None
+    category: Optional[CategoryOut] = None
+    reviews: Optional[list[ReviewInProduct]] = None
 
     model_config = ConfigDict(from_attributes=True)

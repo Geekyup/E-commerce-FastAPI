@@ -20,3 +20,5 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     cart: Mapped[Cart | None] = relationship("Cart", back_populates="user", uselist=False)
+    orders: Mapped[list[Order]] = relationship("Order", back_populates="user", cascade="all, delete-orphan")
+    reviews: Mapped[list[Review]] = relationship("Review", back_populates="user", cascade="all, delete-orphan")

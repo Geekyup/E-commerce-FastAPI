@@ -11,9 +11,11 @@ A clean, production-ready e-commerce backend template built with **FastAPI**, **
 - 🔐 **Authentication & Authorization** — JWT-based auth with secure password hashing
 - 👤 **User Management** — Registration, login, profile management
 - 📦 **Product Catalog** — CRUD for products with image upload support
+- ⭐ **Product Reviews** — User reviews with 1-5 star ratings and average rating calculation
 - 🛒 **Shopping Cart** — Per-user cart with item management
+- 📦 **Orders** — Order management with status tracking
 - 🗄️ **Database Migrations** — Alembic-powered schema versioning
-- ⚙️ **Admin Panel** — Built-in superuser management
+- ⚙️ **Admin Panel** — Built-in superuser management with FastAdmin
 - 📁 **File Uploads** — Product image handling
 
 ---
@@ -29,22 +31,34 @@ A clean, production-ready e-commerce backend template built with **FastAPI**, **
 │   ├── api/                 # Route handlers
 │   │   ├── user.py
 │   │   ├── product.py
-│   │   └── cart.py
+│   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── category.py
+│   │   └── review.py
 │   │
 │   ├── models/              # SQLAlchemy ORM models
 │   │   ├── user.py
 │   │   ├── product.py
-│   │   └── cart.py
+│   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── category.py
+│   │   └── review.py
 │   │
 │   ├── schemas/             # Pydantic schemas
 │   │   ├── user.py
 │   │   ├── product.py
-│   │   └── cart.py
+│   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── category.py
+│   │   └── review.py
 │   │
 │   ├── services/            # Business logic
 │   │   ├── user.py
 │   │   ├── product.py
 │   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── category.py
+│   │   ├── review.py
 │   │   └── upload.py
 │   │
 │   ├── core/                # App config & security
@@ -139,6 +153,11 @@ Interactive docs: `http://localhost:8000/docs`
 | `GET` | `/api/products/{id}` | Get product by ID |
 | `PUT` | `/api/products/{id}` | Update a product *(admin)* |
 | `DELETE` | `/api/products/{id}` | Delete a product *(admin)* |
+| `POST` | `/api/reviews/` | Create a product review |
+| `GET` | `/api/reviews/product/{product_id}` | Get reviews for a product |
+| `GET` | `/api/reviews/user/{user_id}` | Get reviews by a user |
+| `PATCH` | `/api/reviews/{review_id}` | Update a review |
+| `DELETE` | `/api/reviews/{review_id}` | Delete a review |
 | `GET` | `/api/cart/` | Get current user's cart |
 | `POST` | `/api/cart/` | Add item to cart |
 | `DELETE` | `/api/cart/{item_id}` | Remove item from cart |

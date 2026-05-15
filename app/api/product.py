@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
+import json
 
 from app.db.session import get_db
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
@@ -11,6 +12,7 @@ from app.services.product import (
     list_products,
     update_product,
 )
+from app.services.upload import save_upload_file, delete_upload_file, parse_images_json, images_to_json
 
 router = APIRouter(prefix="/api/products", tags=["Products"])
 
@@ -76,3 +78,91 @@ async def delete_product_endpoint(
             detail="Product is present in one or more carts",
         )
     return None
+
+
+@router.post("/{product_id}/cover", response_model=ProductOut)
+async def upload_cover_image(
+    product_id: int,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Загрузить обложку для товара"""
+    product = await get_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    try:
+        # Удаляем старую обложку если она есть
+        if product.cover_image:
+            delete_upload_file(product.cover_image)
+        
+        # Сохраняем новую обложку
+        file_path = await save_upload_file(file, subfolder="products/covers")
+        product.cover_image = file_path
+        
+        await db.commit()
+        await db.refresh(product)
+        return product
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при загрузке файла: {str(e)}")
+
+
+@router.post("/{product_id}/images", response_model=ProductOut)
+async def upload_product_image(
+    product_id: int,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Загрузить фото товара"""
+    product = await get_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    try:
+        # Сохраняем новое фото
+        file_path = await save_upload_file(file, subfolder="products/images")
+        
+        # Добавляем к существующим фото
+        images = parse_images_json(product.images) if product.images else []
+        images.append(file_path)
+        product.images = images_to_json(images)
+        
+        await db.commit()
+        await db.refresh(product)
+        return product
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при загрузке файла: {str(e)}")
+
+
+@router.delete("/{product_id}/images/{image_index}")
+async def delete_product_image(
+    product_id: int,
+    image_index: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Удалить фото товара по индексу"""
+    product = await get_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    images = parse_images_json(product.images) if product.images else []
+    
+    if image_index < 0 or image_index >= len(images):
+        raise HTTPException(status_code=400, detail="Invalid image index")
+    
+    # Удаляем файл
+    deleted_image = images.pop(image_index)
+    delete_upload_file(deleted_image)
+    
+    # Обновляем список
+    product.images = images_to_json(images) if images else None
+    
+    await db.commit()
+    await db.refresh(product)
+    return product

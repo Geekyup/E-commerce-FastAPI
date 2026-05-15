@@ -49,6 +49,12 @@ desktop.ini
 # Uploads / media (если храните файлы локально)
 uploads/
 media/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+media/
  
 # Logs
 *.log
